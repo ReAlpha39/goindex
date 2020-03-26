@@ -61,10 +61,14 @@ function nav(path){
 
 // render file list
 function list(path){
-	var content = `
-	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>
-
-	 <div class="mdui-row"> 
+    var content = "";
+	content += `
+	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>`;
+    if(search){
+        if(dark){content += `<div class="mdui-textfield"><input class="mdui-textfield-input mdui-text-color-white-text" id="myInput" onkeyup="myFunction()" type="text" placeholder="Search for names.."></input></div>`;
+        }else{content += `<div class="mdui-textfield"><input class="mdui-textfield-input" id="myInput" onkeyup="myFunction()" type="text" placeholder="Search for names.."></input></div>`;}
+    }
+	content += `<div class="mdui-row"> 
 	  <ul class="mdui-list"> 
 	   <li class="mdui-list-item th"> 
 	    <div class="mdui-col-xs-12 mdui-col-sm-7">
