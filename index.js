@@ -40,11 +40,12 @@ async function handleRequest(request) {
       gd = new googleDrive(authConfig);
     }
 
-    if(request.method == 'POST'){
+    let url = new URL(request.url);
+
+    if (request.method == 'POST'){
       return apiRequest(request);
     }
 
-    let url = new URL(request.url);
     let path = url.pathname;
     let action = url.searchParams.get('a');
 
@@ -111,6 +112,17 @@ async function apiRequest(request) {
     }
 }
 
+async function apiSearchRequest(q) {
+  let option = {status:200,headers:{'Access-Control-Allow-Origin':'*'}}
+  let notfound = []
+  let list = await gd.search(q);
+  if(list.length == 0){
+      return new Response(JSON.stringify(notfound),option);
+  }else{
+      return new Response(JSON.stringify(list),option);
+  }
+}
+
 class googleDrive {
     constructor(authConfig) {
         this.authConfig = authConfig;
@@ -160,6 +172,32 @@ class googleDrive {
       }
       console.log(obj);
       return obj.files[0];
+    }
+
+    // cari langsung ke gd berdasarkan root id sekarang
+    async search(query){
+      let url = 'https://www.googleapis.com/drive/v3/files';
+      this.files = [];
+      if(authConfig.root.length>20){
+          return this.files;
+      }
+      let params;
+      if(authConfig.root=="root"){
+          params = {'corpus':'user','includeItemsFromAllDrives':false,'supportsAllDrives':false};
+          params.q = `name contains '${query}' and trashed = false`;
+      }else{
+          params = {'corpora':'drive', 'driveId': authConfig.root, 'includeItemsFromAllDrives':true,'supportsAllDrives':true};
+          params.q = `name contains '${query}' and trashed = false`;
+      }
+      params.fields = "files(id, name, mimeType, size ,createdTime, modifiedTime, iconLink, thumbnailLink)";
+      url += '?'+this.enQuery(params);
+      let requestOption = await this.requestOption();
+      let response = await fetch(url, requestOption);
+      let obj = await response.json();
+      for (let i=0; i<obj.files.length; i+=1) {
+          this.files.push(obj.files[i]);
+      }
+      return this.files;
     }
 
     // Cache via reqeust cache

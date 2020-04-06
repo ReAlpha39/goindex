@@ -64,7 +64,7 @@ function list(path){
     var content = "";
 	content += `
 	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>
-    <div class="mdui-textfield"><input class="mdui-textfield-input" id="myInput" onkeyup="myFunction()" type="text" placeholder="Search for names.."></input></div>
+    <div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput" onkeyup="searchOnlyActiveDir()" type="text" placeholder="Search for names.."></input></div>
 	<div class="mdui-row"> 
 	  <ul class="mdui-list"> 
 	   <li class="mdui-list-item th"> 
@@ -340,6 +340,10 @@ function file_image(path){
 	$('#content').html(content);
 }
 
+function searchOnlyActiveDir() {
+	var e, t, n, l;
+	for (e = document.getElementById("searchInput").value.toUpperCase(), t = document.getElementById("list").getElementsByTagName("li"), l = 0; l < t.length; l++)((n = t[l].getElementsByTagName("a")[0]).textContent || n.innerText).toUpperCase().indexOf(e) > -1 ? t[l].style.display = "" : t[l].style.display = "none"
+}
 
 //time conversion
 function utc2beijing(utc_datetime) {
