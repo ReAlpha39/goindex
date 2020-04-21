@@ -275,17 +275,12 @@ function file_code(path) {
 // File display Video |mp4|webm|avi|
 function file_video(path) {
 	var url = window.location.origin + path;
-	var playBtn = `<a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" href="potplayer://${url}"><i class="mdui-icon material-icons">&#xe038;</i>在 potplayer Play</a>`;
-	if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent)) { //Mobile
-		playBtn = `	<a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" href="intent:${url}#Intent;package=com.mxtech.videoplayer.ad;S.title=${path};end"><i class="mdui-icon material-icons">&#xe039;</i>Play in mxplayer</a>`;
-	}
 	var content = `
 <div class="mdui-container-fluid">
 	<br>
 	<video class="mdui-video-fluid mdui-center" preload controls>
 	  <source src="${url}" type="video/mp4">
 	</video>
-	<br>${playBtn}
 	<!-- Fixed label -->
 	<div class="mdui-textfield">
 	  <label class="mdui-textfield-label">download link</label>`
