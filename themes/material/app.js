@@ -73,13 +73,13 @@ function list(path) {
 	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>`;
 	if (dark) {
 		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" mdui-text-color-white-text id="searchInput"`;
-		if (authConfig.root.length > 20) {
+		if (!teamDrive) {
 			content += ` onkeyup="searchOnlyActiveDir()" `;
 		}
 		content += `type="text" placeholder="Type to search..."></input></div>`;
 	} else {
 		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput"`;
-		if (authConfig.root.length > 20) {
+		if (!teamDrive) {
 			content += ` onkeyup="searchOnlyActiveDir()" `;
 		}
 		content += `type="text" placeholder="Type to search..."></input></div>`;
@@ -110,7 +110,7 @@ function list(path) {
 	 <div id="readme_md" class="mdui-typo" style="display:none; padding: 20px 0;"></div>
 	`;
 	$('#content').html(content);
-	if (authConfig.root.length > 20) {
+	if (teamDrive) {
 		$('#searchInput').keyup(function () {
 			var p = '/', q = $('#searchInput').val();
 			$('#list').html(`<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`);
