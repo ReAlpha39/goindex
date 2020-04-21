@@ -24,7 +24,7 @@ var html = `
 <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
 <title>${authConfig.siteName}</title>
 <script>var main_color = "${authConfig.main_color}";var accent_color = "${authConfig.accent_color}";var dark = "${authConfig.isDark}"; </script>
-<script src="//cdn.jsdelivr.net/combine/gh/jquery/jquery@3.2/dist/jquery.min.js,gh/TechExhibeo/goindex@${authConfig.version}/themes/${authConfig.theme}/app.js"></script>
+<script src="//cdn.jsdelivr.net/combine/gh/jquery/jquery@3.2/dist/jquery.min.js,gh/ReAlpha39/goindex@${authConfig.version}/themes/${authConfig.theme}/app.js"></script>
 </head>
 <body>
 </body>
