@@ -73,12 +73,20 @@ function nav(path) {
 function list(path) {
 	var content = `
 	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>`
-	if(dark) {
-		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" mdui-text-color-white-text id="searchInput" onkeyup="searchOnlyActiveDir()" type="text" placeholder="Type to search..."></input></div>`
+	if (dark) {
+		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" mdui-text-color-white-text id="searchInput"`;
+		if (authConfig.root.length > 20) {
+			content += ` onkeyup="searchOnlyActiveDir()" `;
+		}
+		content += `type="text" placeholder="Type to search..."></input></div>`;
 	} else {
-		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput" onkeyup="searchOnlyActiveDir()" type="text" placeholder="Type to search..."></input></div>`
+		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput"`
+		if (authConfig.root.length > 20) {
+			content += ` onkeyup="searchOnlyActiveDir()" `;
+		}
+		content += `type="text" placeholder="Type to search..."></input></div>`;
 	}
-    content += `
+	content += `
 	 <div class="mdui-row"> 
 	  <ul class="mdui-list"> 
 	   <li class="mdui-list-item th"> 
@@ -104,7 +112,29 @@ function list(path) {
 	 <div id="readme_md" class="mdui-typo" style="display:none; padding: 20px 0;"></div>
 	`;
 	$('#content').html(content);
-
+	if (authConfig.root.length > 20) {
+		$('#searchInput').keyup(function () {
+			var p = '/', q = $('#searchInput').val();
+			$('#list').html(`<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`);
+			$('#readme_md').hide().html('');
+			$('#head_md').hide().html('');
+			if (q != "" && q != null) {
+				$.post('?q=' + q, function (data, status) {
+					var obj = jQuery.parseJSON('{"files": ' + data + '}');
+					if (typeof obj != 'null') {
+						list_files(p, obj.files);
+					}
+				});
+			} else {
+				$.post(path, function (data, status) {
+					var obj = jQuery.parseJSON(data);
+					if (typeof obj != 'null') {
+						list_files(path, obj.files);
+					}
+				});
+			}
+		});
+	}
 	var password = localStorage.getItem('password' + path);
 	$('#list').html(`<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`);
 	$('#readme_md').hide().html('');
@@ -284,7 +314,7 @@ function file_video(path) {
 	<!-- Fixed label -->
 	<div class="mdui-textfield">
 	  <label class="mdui-textfield-label">download link</label>`
-	if(dark) {
+	if (dark) {
 		content += `<input class="mdui-textfield-input"  type="text" value="${url}"/>`
 	} else {
 		content += `<input class="mdui-textfield-input" mdui-text-color-white-text type="text" value="${url}"/>`

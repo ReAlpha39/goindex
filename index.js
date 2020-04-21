@@ -23,7 +23,7 @@ var html = `
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
 <title>${authConfig.siteName}</title>
-<script>var main_color = "${authConfig.main_color}";var accent_color = "${authConfig.accent_color}";var dark = ${authConfig.isDark};</script>
+<script>var main_color = "${authConfig.main_color}";var accent_color = "${authConfig.accent_color}";var dark = "${authConfig.isDark}"; </script>
 <script src="//cdn.jsdelivr.net/combine/gh/jquery/jquery@3.2/dist/jquery.min.js,gh/TechExhibeo/goindex@${authConfig.version}/themes/${authConfig.theme}/app.js"></script>
 </head>
 <body>
@@ -164,6 +164,32 @@ class googleDrive {
     }
     console.log(obj);
     return obj.files[0];
+  }
+
+  // Search item only for root and team drive
+  async search(query){
+    let url = 'https://www.googleapis.com/drive/v3/files';
+    this.files = [];
+    if(authConfig.root.length>20){
+        return this.files;
+    }
+    let params;
+    if(authConfig.root=="root"){
+        params = {'corpus':'user','includeItemsFromAllDrives':false,'supportsAllDrives':false};
+        params.q = `name contains '${query}' and trashed = false`;
+    }else{
+        params = {'corpora':'drive', 'driveId': authConfig.root, 'includeItemsFromAllDrives':true,'supportsAllDrives':true};
+        params.q = `name contains '${query}' and trashed = false`;
+    }
+    params.fields = "files(id, name, mimeType, size ,createdTime, modifiedTime, iconLink, thumbnailLink)";
+    url += '?'+this.enQuery(params);
+    let requestOption = await this.requestOption();
+    let response = await fetch(url, requestOption);
+    let obj = await response.json();
+    for (let i=0; i<obj.files.length; i+=1) {
+        this.files.push(obj.files[i]);
+    }
+    return this.files;
   }
 
   // Cache via reqeust cache
