@@ -5,65 +5,80 @@ document.write('<script src="//cdn.jsdelivr.net/npm/markdown-it@10.0.0/dist/mark
 document.write('<style>.mdui-appbar .mdui-toolbar{height:56px;font-size:1pc}.mdui-toolbar>*{padding:0 6px;margin:0 2px}.mdui-toolbar>i{opacity:.5}.mdui-toolbar>.mdui-typo-headline{padding:0 1pc 0 0}.mdui-toolbar>i{padding:0}.mdui-toolbar>a:hover,a.active,a.mdui-typo-headline{opacity:1}.mdui-container{max-width:980px}.mdui-list-item{transition:none}.mdui-list>.th{background-color:initial}.mdui-list-item>a{width:100%;line-height:3pc}.mdui-list-item{margin:2px 0;padding:0}.mdui-toolbar>a:last-child{opacity:1}@media screen and (max-width:980px){.mdui-list-item .mdui-text-right{display:none}.mdui-container{width:100%!important;margin:0}.mdui-toolbar>.mdui-typo-headline,.mdui-toolbar>a:last-child,.mdui-toolbar>i:first-child{display:block}}</style>');
 
 // Initialize the page and load the necessary resources
-function init(){
-    document.siteName = $('title').html();
-    $('body').addClass("mdui-theme-primary-blue-grey mdui-theme-accent-blue");
-    var html = `
-<header class="mdui-appbar mdui-color-theme"> 
+function init() {
+	document.siteName = $('title').html();
+	$('body').addClass("mdui-theme-primary-" + main_color + " mdui-theme-accent-" + accent_color);;
+	var html = `
+<header class="mdui-appbar mdui-color-theme">`
+	if (dark) {
+		html += `
+	<div id="nav" class="mdui-toolbar mdui-container mdui-text-color-white-text">
+	</div>`;
+	} else {
+		html += `
+	<div id="nav" class="mdui-toolbar mdui-container">
+	</div>`;
+	}
+	html += `
    <div id="nav" class="mdui-toolbar mdui-container"> 
    </div> 
 </header>
 <div id="content" class="mdui-container"> 
 </div>
 	`;
-    $('body').html(html);
+	$('body').html(html);
 }
 
-function render(path){
-	if(path.indexOf("?") > 0){
-		path = path.substr(0,path.indexOf("?"));
+function render(path) {
+	if (path.indexOf("?") > 0) {
+		path = path.substr(0, path.indexOf("?"));
 	}
-    title(path);
-    nav(path);
-    if(path.substr(-1) == '/'){
-    	list(path);
-    }else{
-	    file(path);
-    }
+	title(path);
+	nav(path);
+	if (path.substr(-1) == '/') {
+		list(path);
+	} else {
+		file(path);
+	}
 }
 
 
 // render title
-function title(path){
-    path = decodeURI(path);
-    $('title').html(document.siteName+' - '+path);
+function title(path) {
+	path = decodeURI(path);
+	$('title').html(document.siteName + ' - ' + path);
 }
 
 // render navigation bar
-function nav(path){
-    var html = "";
-    html += `<a href="/" class="mdui-typo-headline folder">${document.siteName}</a>`;
-    var arr = path.trim('/').split('/');
-    var p = '/';
-    if(arr.length > 0){
-        for(i in arr){
-            var n = arr[i];
-            n = decodeURI(n);
-            p += n+'/';
-            if(n == ''){
-                break;
-            }
-            html += `<i class="mdui-icon material-icons mdui-icon-dark folder" style="margin:0;">chevron_right</i><a class="folder" href="${p}">${n}</a>`;
-        }
-    }
-    $('#nav').html(html);
+function nav(path) {
+	var html = "";
+	html += `<a href="/" class="mdui-typo-headline folder">${document.siteName}</a>`;
+	var arr = path.trim('/').split('/');
+	var p = '/';
+	if (arr.length > 0) {
+		for (i in arr) {
+			var n = arr[i];
+			n = decodeURI(n);
+			p += n + '/';
+			if (n == '') {
+				break;
+			}
+			html += `<i class="mdui-icon material-icons mdui-icon-dark folder" style="margin:0;">chevron_right</i><a class="folder" href="${p}">${n}</a>`;
+		}
+	}
+	$('#nav').html(html);
 }
 
 // render file list
-function list(path){
+function list(path) {
 	var content = `
-	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>
-    <div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput" onkeyup="searchOnlyActiveDir()" type="text" placeholder="Type to search..."></input></div>
+	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>`
+	if(dark) {
+		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" mdui-text-color-white-text id="searchInput" onkeyup="searchOnlyActiveDir()" type="text" placeholder="Type to search..."></input></div>`
+	} else {
+		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput" onkeyup="searchOnlyActiveDir()" type="text" placeholder="Type to search..."></input></div>`
+	}
+    content += `
 	 <div class="mdui-row"> 
 	  <ul class="mdui-list"> 
 	   <li class="mdui-list-item th"> 
@@ -89,40 +104,40 @@ function list(path){
 	 <div id="readme_md" class="mdui-typo" style="display:none; padding: 20px 0;"></div>
 	`;
 	$('#content').html(content);
-	
-    var password = localStorage.getItem('password'+path);
-    $('#list').html(`<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`);
-    $('#readme_md').hide().html('');
-    $('#head_md').hide().html('');
-    $.post(path,'{"password":"'+password+'"}', function(data,status){
-        var obj = jQuery.parseJSON(data);
-        if(typeof obj != 'null' && obj.hasOwnProperty('error') && obj.error.code == '401'){
-            var pass = prompt("Directory protected, please enter password","");
-            localStorage.setItem('password'+path, pass);
-            if(pass != null && pass != ""){
-                list(path);
-            }else{
-                history.go(-1);
-            }
-        }else if(typeof obj != 'null'){
-            list_files(path,obj.files);
-        }
-    });
+
+	var password = localStorage.getItem('password' + path);
+	$('#list').html(`<div class="mdui-progress"><div class="mdui-progress-indeterminate"></div></div>`);
+	$('#readme_md').hide().html('');
+	$('#head_md').hide().html('');
+	$.post(path, '{"password":"' + password + '"}', function (data, status) {
+		var obj = jQuery.parseJSON(data);
+		if (typeof obj != 'null' && obj.hasOwnProperty('error') && obj.error.code == '401') {
+			var pass = prompt("Directory protected, please enter password", "");
+			localStorage.setItem('password' + path, pass);
+			if (pass != null && pass != "") {
+				list(path);
+			} else {
+				history.go(-1);
+			}
+		} else if (typeof obj != 'null') {
+			list_files(path, obj.files);
+		}
+	});
 }
 
-function list_files(path,files){
-    html = "";
-    for(i in files){
-        var item = files[i];
-        var p = path+item.name+'/';
-        if(item['size']==undefined){
-            item['size'] = "";
-        }
+function list_files(path, files) {
+	html = "";
+	for (i in files) {
+		var item = files[i];
+		var p = path + item.name + '/';
+		if (item['size'] == undefined) {
+			item['size'] = "";
+		}
 
-        item['modifiedTime'] = utc2beijing(item['modifiedTime']);
-        item['size'] = formatFileSize(item['size']);
-        if(item['mimeType'] == 'application/vnd.google-apps.folder'){
-            html +=`<li class="mdui-list-item mdui-ripple"><a href="${p}" class="folder">
+		item['modifiedTime'] = utc2beijing(item['modifiedTime']);
+		item['size'] = formatFileSize(item['size']);
+		if (item['mimeType'] == 'application/vnd.google-apps.folder') {
+			html += `<li class="mdui-list-item mdui-ripple"><a href="${p}" class="folder">
 	            <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
 	            <i class="mdui-icon material-icons">folder_open</i>
 	              ${item.name}
@@ -131,25 +146,25 @@ function list_files(path,files){
 	            <div class="mdui-col-sm-2 mdui-text-right">${item['size']}</div>
 	            </a>
 	        </li>`;
-        }else{
-            var p = path+item.name;
-            var c = "file";
-            if(item.name == "README.md"){
-                 get_file(p, item, function(data){
-                    markdown("#readme_md",data);
-                });
-            }
-            if(item.name == "HEAD.md"){
-	            get_file(p, item, function(data){
-                    markdown("#head_md",data);
-                });
-            }
-            var ext = p.split('.').pop();
-            if("|html|php|css|go|java|js|json|txt|sh|md|mp4|webm|avi|bmp|jpg|jpeg|png|gif|m4a|mp3|wav|ogg|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv|".indexOf(`|${ext.toLowerCase()}|`) >= 0){
-	            p += "?a=view";
-	            c += " view";
-            }
-            html += `<li class="mdui-list-item file mdui-ripple" target="_blank"><a gd-type="${item.mimeType}" href="${p}" class="${c}">
+		} else {
+			var p = path + item.name;
+			var c = "file";
+			if (item.name == "README.md") {
+				get_file(p, item, function (data) {
+					markdown("#readme_md", data);
+				});
+			}
+			if (item.name == "HEAD.md") {
+				get_file(p, item, function (data) {
+					markdown("#head_md", data);
+				});
+			}
+			var ext = p.split('.').pop();
+			if ("|html|php|css|go|java|js|json|txt|sh|md|mp4|webm|avi|bmp|jpg|jpeg|png|gif|m4a|mp3|wav|ogg|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv|".indexOf(`|${ext.toLowerCase()}|`) >= 0) {
+				p += "?a=view";
+				c += " view";
+			}
+			html += `<li class="mdui-list-item file mdui-ripple" target="_blank"><a gd-type="${item.mimeType}" href="${p}" class="${c}">
 	          <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
 	          <i class="mdui-icon material-icons">insert_drive_file</i>
 	            ${item.name}
@@ -158,65 +173,65 @@ function list_files(path,files){
 	          <div class="mdui-col-sm-2 mdui-text-right">${item['size']}</div>
 	          </a>
 	      </li>`;
-        }
-    }
-    $('#list').html(html);
+		}
+	}
+	$('#list').html(html);
 }
 
 
-function get_file(path, file, callback){
-	var key = "file_path_"+path+file['modifiedTime'];
+function get_file(path, file, callback) {
+	var key = "file_path_" + path + file['modifiedTime'];
 	var data = localStorage.getItem(key);
-	if(data != undefined){
+	if (data != undefined) {
 		return callback(data);
-	}else{
-		$.get(path, function(d){
+	} else {
+		$.get(path, function (d) {
 			localStorage.setItem(key, d);
-            callback(d);
-        });
+			callback(d);
+		});
 	}
 }
 
 
 
 // File display ?a=view
-function file(path){
+function file(path) {
 	var name = path.split('/').pop();
-	var ext = name.split('.').pop().toLowerCase().replace(`?a=view`,"");
-	if("|html|php|css|go|java|js|json|txt|sh|md|".indexOf(`|${ext}|`) >= 0){
+	var ext = name.split('.').pop().toLowerCase().replace(`?a=view`, "");
+	if ("|html|php|css|go|java|js|json|txt|sh|md|".indexOf(`|${ext}|`) >= 0) {
 		return file_code(path);
 	}
 
-	if("|mp4|webm|avi|".indexOf(`|${ext}|`) >= 0){
+	if ("|mp4|webm|avi|".indexOf(`|${ext}|`) >= 0) {
 		return file_video(path);
 	}
 
-	if("|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv|".indexOf(`|${ext}|`) >= 0){
+	if ("|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv|".indexOf(`|${ext}|`) >= 0) {
 		return file_video(path);
 	}
-	
-	if("|mp3|wav|ogg|m4a|".indexOf(`|${ext}|`) >= 0){
+
+	if ("|mp3|wav|ogg|m4a|".indexOf(`|${ext}|`) >= 0) {
 		return file_audio(path);
 	}
 
-	if("|bmp|jpg|jpeg|png|gif|".indexOf(`|${ext}|`) >= 0){
+	if ("|bmp|jpg|jpeg|png|gif|".indexOf(`|${ext}|`) >= 0) {
 		return file_image(path);
 	}
 }
 
 // File display |html|php|css|go|java|js|json|txt|sh|md|
-function file_code(path){
+function file_code(path) {
 	var type = {
-		"html":"html",
-		"php":"php",
-		"css":"css",
-		"go":"golang",
-		"java":"java",
-		"js":"javascript",
-		"json":"json",
-		"txt":"Text",
-		"sh":"sh",
-		"md":"Markdown",	
+		"html": "html",
+		"php": "php",
+		"css": "css",
+		"go": "golang",
+		"java": "java",
+		"js": "javascript",
+		"json": "json",
+		"txt": "Text",
+		"sh": "sh",
+		"md": "Markdown",
 	};
 	var name = path.split('/').pop();
 	var ext = name.split('.').pop();
@@ -235,34 +250,34 @@ function file_code(path){
 <script src="https://cdn.staticfile.org/ace/1.4.7/ext-language_tools.js"></script>
 	`;
 	$('#content').html(content);
-	
-	$.get(path, function(data){
+
+	$.get(path, function (data) {
 		$('#editor').html($('<div/>').text(data).html());
 		var code_type = "Text";
-		if(type[ext] != undefined ){
+		if (type[ext] != undefined) {
 			code_type = type[ext];
 		}
 		var editor = ace.edit("editor");
-	    editor.setTheme("ace/theme/ambiance");
-	    editor.setFontSize(18);
-	    editor.session.setMode("ace/mode/"+code_type);
-	    
-	    //Autocompletion
-	    editor.setOptions({
-	        enableBasicAutocompletion: true,
-	        enableSnippets: true,
-	        enableLiveAutocompletion: true,
-	        maxLines: Infinity
-	    });
+		editor.setTheme("ace/theme/ambiance");
+		editor.setFontSize(18);
+		editor.session.setMode("ace/mode/" + code_type);
+
+		//Autocompletion
+		editor.setOptions({
+			enableBasicAutocompletion: true,
+			enableSnippets: true,
+			enableLiveAutocompletion: true,
+			maxLines: Infinity
+		});
 	});
 }
 
 // File display Video |mp4|webm|avi|
-function file_video(path){
+function file_video(path) {
 	var url = window.location.origin + path;
 	var playBtn = `<a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" href="potplayer://${url}"><i class="mdui-icon material-icons">&#xe038;</i>在 potplayer Play</a>`;
 	if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent)) { //Mobile
-	    playBtn = `	<a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" href="intent:${url}#Intent;package=com.mxtech.videoplayer.ad;S.title=${path};end"><i class="mdui-icon material-icons">&#xe039;</i>Play in mxplayer</a>`;
+		playBtn = `	<a class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" href="intent:${url}#Intent;package=com.mxtech.videoplayer.ad;S.title=${path};end"><i class="mdui-icon material-icons">&#xe039;</i>Play in mxplayer</a>`;
 	}
 	var content = `
 <div class="mdui-container-fluid">
@@ -273,8 +288,13 @@ function file_video(path){
 	<br>${playBtn}
 	<!-- Fixed label -->
 	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">download link</label>
-	  <input class="mdui-textfield-input" type="text" value="${url}"/>
+	  <label class="mdui-textfield-label">download link</label>`
+	if(dark) {
+		content += `<input class="mdui-textfield-input"  type="text" value="${url}"/>`
+	} else {
+		content += `<input class="mdui-textfield-input" mdui-text-color-white-text type="text" value="${url}"/>`
+	}
+	content += `
 	</div>
 	<div class="mdui-textfield">
 	  <label class="mdui-textfield-label">HTML Reference address</label>
@@ -287,7 +307,7 @@ function file_video(path){
 }
 
 // file display audio |mp3|m4a|wav|ogg|
-function file_audio(path){
+function file_audio(path) {
 	var url = window.location.origin + path;
 	var content = `
 <div class="mdui-container-fluid">
@@ -313,7 +333,7 @@ function file_audio(path){
 
 
 // picture display
-function file_image(path){
+function file_image(path) {
 	var url = window.location.origin + path;
 	var content = `
 <div class="mdui-container-fluid">
@@ -346,90 +366,90 @@ function searchOnlyActiveDir() {
 
 //time conversion
 function utc2beijing(utc_datetime) {
-    // To normal time format year-month-day hour: minutes: seconds
-    var T_pos = utc_datetime.indexOf('T');
-    var Z_pos = utc_datetime.indexOf('Z');
-    var year_month_day = utc_datetime.substr(0,T_pos);
-    var hour_minute_second = utc_datetime.substr(T_pos+1,Z_pos-T_pos-1);
-    var new_datetime = year_month_day+" "+hour_minute_second; // 2017-03-31 08:02:06
+	// To normal time format year-month-day hour: minutes: seconds
+	var T_pos = utc_datetime.indexOf('T');
+	var Z_pos = utc_datetime.indexOf('Z');
+	var year_month_day = utc_datetime.substr(0, T_pos);
+	var hour_minute_second = utc_datetime.substr(T_pos + 1, Z_pos - T_pos - 1);
+	var new_datetime = year_month_day + " " + hour_minute_second; // 2017-03-31 08:02:06
 
-    // Processing becomes timestamp
-    timestamp = new Date(Date.parse(new_datetime));
-    timestamp = timestamp.getTime();
-    timestamp = timestamp/1000;
+	// Processing becomes timestamp
+	timestamp = new Date(Date.parse(new_datetime));
+	timestamp = timestamp.getTime();
+	timestamp = timestamp / 1000;
 
-    // Add 8 hours, Beijing time is eight more time zones than UTC time
-    var unixtimestamp = timestamp+8*60*60;
+	// Add 8 hours, Beijing time is eight more time zones than UTC time
+	var unixtimestamp = timestamp + 8 * 60 * 60;
 
-    // Timestamp to time
-    var unixtimestamp = new Date(unixtimestamp*1000);
-    var year = 1900 + unixtimestamp.getYear();
-    var month = "0" + (unixtimestamp.getMonth() + 1);
-    var date = "0" + unixtimestamp.getDate();
-    var hour = "0" + unixtimestamp.getHours();
-    var minute = "0" + unixtimestamp.getMinutes();
-    var second = "0" + unixtimestamp.getSeconds();
-    return year + "-" + month.substring(month.length-2, month.length)  + "-" + date.substring(date.length-2, date.length)
-        + " " + hour.substring(hour.length-2, hour.length) + ":"
-        + minute.substring(minute.length-2, minute.length) + ":"
-        + second.substring(second.length-2, second.length);
+	// Timestamp to time
+	var unixtimestamp = new Date(unixtimestamp * 1000);
+	var year = 1900 + unixtimestamp.getYear();
+	var month = "0" + (unixtimestamp.getMonth() + 1);
+	var date = "0" + unixtimestamp.getDate();
+	var hour = "0" + unixtimestamp.getHours();
+	var minute = "0" + unixtimestamp.getMinutes();
+	var second = "0" + unixtimestamp.getSeconds();
+	return year + "-" + month.substring(month.length - 2, month.length) + "-" + date.substring(date.length - 2, date.length)
+		+ " " + hour.substring(hour.length - 2, hour.length) + ":"
+		+ minute.substring(minute.length - 2, minute.length) + ":"
+		+ second.substring(second.length - 2, second.length);
 }
 
 // bytes adaptive conversion to KB, MB, GB
 function formatFileSize(bytes) {
-    if (bytes>=1000000000) {bytes=(bytes/1000000000).toFixed(2)+' GB';}
-    else if (bytes>=1000000)    {bytes=(bytes/1000000).toFixed(2)+' MB';}
-    else if (bytes>=1000)       {bytes=(bytes/1000).toFixed(2)+' KB';}
-    else if (bytes>1)           {bytes=bytes+' bytes';}
-    else if (bytes==1)          {bytes=bytes+' byte';}
-    else                        {bytes='';}
-    return bytes;
+	if (bytes >= 1000000000) { bytes = (bytes / 1000000000).toFixed(2) + ' GB'; }
+	else if (bytes >= 1000000) { bytes = (bytes / 1000000).toFixed(2) + ' MB'; }
+	else if (bytes >= 1000) { bytes = (bytes / 1000).toFixed(2) + ' KB'; }
+	else if (bytes > 1) { bytes = bytes + ' bytes'; }
+	else if (bytes == 1) { bytes = bytes + ' byte'; }
+	else { bytes = ''; }
+	return bytes;
 }
 
 String.prototype.trim = function (char) {
-    if (char) {
-        return this.replace(new RegExp('^\\'+char+'+|\\'+char+'+$', 'g'), '');
-    }
-    return this.replace(/^\s+|\s+$/g, '');
+	if (char) {
+		return this.replace(new RegExp('^\\' + char + '+|\\' + char + '+$', 'g'), '');
+	}
+	return this.replace(/^\s+|\s+$/g, '');
 };
 
 
 // README.md HEAD.md support
-function markdown(el, data){
-    if(window.md == undefined){
-        //$.getScript('https://cdn.jsdelivr.net/npm/markdown-it@10.0.0/dist/markdown-it.min.js',function(){
-        window.md = window.markdownit();
-        markdown(el, data);
-        //});
-    }else{
-        var html = md.render(data);
-        $(el).show().html(html);
-    }
+function markdown(el, data) {
+	if (window.md == undefined) {
+		//$.getScript('https://cdn.jsdelivr.net/npm/markdown-it@10.0.0/dist/markdown-it.min.js',function(){
+		window.md = window.markdownit();
+		markdown(el, data);
+		//});
+	} else {
+		var html = md.render(data);
+		$(el).show().html(html);
+	}
 }
 
 // Listen for fallback events
-window.onpopstate = function(){
-    var path = window.location.pathname;
-    render(path);
+window.onpopstate = function () {
+	var path = window.location.pathname;
+	render(path);
 }
 
 
-$(function(){
-    init();
-    var path = window.location.pathname;
-    $("body").on("click",'.folder',function(){
-        var url = $(this).attr('href');
-        history.pushState(null, null, url);
-        render(url);
-        return false;
-    });
+$(function () {
+	init();
+	var path = window.location.pathname;
+	$("body").on("click", '.folder', function () {
+		var url = $(this).attr('href');
+		history.pushState(null, null, url);
+		render(url);
+		return false;
+	});
 
-    $("body").on("click",'.view',function(){
-        var url = $(this).attr('href');
-        history.pushState(null, null, url);
-        render(url);
-        return false;
-    });
-    
-    render(path);
+	$("body").on("click", '.view', function () {
+		var url = $(this).attr('href');
+		history.pushState(null, null, url);
+		render(url);
+		return false;
+	});
+
+	render(path);
 });

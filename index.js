@@ -5,6 +5,9 @@ var authConfig = {
   "root_pass": "index",  // root password, takes precedence over .password
   "version": "master", // program version
   "theme": "material", // material  classic
+  "main_color": "cyan", // main color
+  "accent_color": "green", // accent color
+  "isDark": true, // dark mode
   "client_id": "202264815644.apps.googleusercontent.com",
   "client_secret": "X4Z3ca8xfWDb1Voo-F9a7ZxJ",
   "refresh_token": "", // authorization token
@@ -20,6 +23,7 @@ var html = `
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
 <title>${authConfig.siteName}</title>
+<script>var main_color = "${authConfig.main_color}";var accent_color = "${authConfig.accent_color}";var dark = ${authConfig.isDark};</script>
 <script src="//cdn.jsdelivr.net/combine/gh/jquery/jquery@3.2/dist/jquery.min.js,gh/TechExhibeo/goindex@${authConfig.version}/themes/${authConfig.theme}/app.js"></script>
 </head>
 <body>
