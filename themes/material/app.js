@@ -291,10 +291,6 @@ function file_video(path) {
 	}
 	content += `
 	</div>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">HTML Reference address</label>
-	  <textarea class="mdui-textfield-input"><video><source src="${url}" type="video/mp4"></video></textarea>
-	</div>
 </div>
 <a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
 	`;
@@ -316,10 +312,6 @@ function file_audio(path) {
 	  <label class="mdui-textfield-label">download link</label>
 	  <input class="mdui-textfield-input" type="text" value="${url}"/>
 	</div>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">HTML Reference address</label>
-	  <textarea class="mdui-textfield-input"><audio><source src="${url}"></audio></textarea>
-	</div>
 </div>
 <a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
 	`;
@@ -338,14 +330,6 @@ function file_image(path) {
 	<div class="mdui-textfield">
 	  <label class="mdui-textfield-label">download link</label>
 	  <input class="mdui-textfield-input" type="text" value="${url}"/>
-	</div>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">HTML Quote</label>
-	  <input class="mdui-textfield-input" type="text" value="<img src='${url}' />"/>
-	</div>
-        <div class="mdui-textfield">
-	  <label class="mdui-textfield-label">Markdown Reference address</label>
-	  <input class="mdui-textfield-input" type="text" value="![](${url})"/>
 	</div>
         <br>
 </div>
