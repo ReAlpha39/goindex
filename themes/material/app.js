@@ -72,7 +72,7 @@ function nav(path) {
 // render file list
 function list(path) {
 	var content = `
-	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>`
+	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>`;
 	if (dark) {
 		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" mdui-text-color-white-text id="searchInput"`;
 		if (authConfig.root.length > 20) {
@@ -80,7 +80,7 @@ function list(path) {
 		}
 		content += `type="text" placeholder="Type to search..."></input></div>`;
 	} else {
-		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput"`
+		content += `<div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput"`;
 		if (authConfig.root.length > 20) {
 			content += ` onkeyup="searchOnlyActiveDir()" `;
 		}
