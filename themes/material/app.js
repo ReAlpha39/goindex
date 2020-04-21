@@ -20,8 +20,6 @@ function init() {
 	</div>`;
 	}
 	html += `
-   <div id="nav" class="mdui-toolbar mdui-container"> 
-   </div> 
 </header>
 <div id="content" class="mdui-container"> 
 </div>
