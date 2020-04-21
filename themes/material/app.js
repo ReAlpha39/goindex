@@ -7,9 +7,9 @@ if (dark) { document.write('<style>* {box-sizing: border-box}body{color:rgba(255
 // Initialize the page and load the necessary resources
 function init() {
 	document.siteName = $('title').html();
-	$('body').addClass("mdui-theme-primary-" + main_color + " mdui-theme-accent-" + accent_color);;
+	$('body').addClass("mdui-theme-primary-" + main_color + " mdui-theme-accent-" + accent_color);
 	var html = `
-<header class="mdui-appbar mdui-color-theme">`
+<header class="mdui-appbar mdui-color-theme">`;
 	if (dark) {
 		html += `
 	<div id="nav" class="mdui-toolbar mdui-container mdui-text-color-white-text">
