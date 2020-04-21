@@ -61,11 +61,10 @@ function nav(path){
 
 // render file list
 function list(path){
-    var content = "";
-	content += `
+	var content = `
 	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>
-    <div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput" onkeyup="searchOnlyActiveDir()" type="text" placeholder="Search for names.."></input></div>
-	<div class="mdui-row"> 
+    <div class="mdui-textfield"><input class="mdui-textfield-input" id="searchInput" onkeyup="searchOnlyActiveDir()" type="text" placeholder="Type to search..."></input></div>
+	 <div class="mdui-row"> 
 	  <ul class="mdui-list"> 
 	   <li class="mdui-list-item th"> 
 	    <div class="mdui-col-xs-12 mdui-col-sm-7">
