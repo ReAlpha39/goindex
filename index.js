@@ -45,7 +45,15 @@ async function handleRequest(request) {
   }
 
   if (request.method == 'POST') {
-    return apiRequest(request);
+    if (authConfig.root.length > 20) {
+      if (query != null) {
+        return apiSearchRequest(query);
+      } else {
+        return apiRequest(request);
+      }
+    } else {
+      return apiRequest(request);
+    }
   }
 
   let url = new URL(request.url);
@@ -112,6 +120,17 @@ async function apiRequest(request) {
     let file = await gd.file(path);
     let range = request.headers.get('Range');
     return new Response(JSON.stringify(file));
+  }
+}
+
+async function apiSearchRequest(q) {
+  let option = {status:200,headers:{'Access-Control-Allow-Origin':'*'}}
+  let notfound = []
+  let list = await gd.search(q);
+  if(list.length == 0){
+      return new Response(JSON.stringify(notfound),option);
+  }else{
+      return new Response(JSON.stringify(list),option);
   }
 }
 
