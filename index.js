@@ -8,7 +8,7 @@ var authConfig = {
   "main_color": "cyan", // main color
   "accent_color": "green", // accent color
   "isDark": true, // dark mode
-  "isRootOrTeamDrive": true,
+  "isRootOrTeamDrive": true, // full search only for root and team drive
   "client_id": "202264815644.apps.googleusercontent.com",
   "client_secret": "X4Z3ca8xfWDb1Voo-F9a7ZxJ",
   "refresh_token": "", // authorization token
@@ -45,8 +45,11 @@ async function handleRequest(request) {
     gd = new googleDrive(authConfig);
   }
 
+  let url = new URL(request.url);
+
   if (request.method == 'POST') {
-    if (authConfig.root.length > 20) {
+    if (authConfig.isRootOrTeamDrive) {
+      let query = url.searchParams.get('q');
       if (query != null) {
         return apiSearchRequest(query);
       } else {
@@ -57,7 +60,6 @@ async function handleRequest(request) {
     }
   }
 
-  let url = new URL(request.url);
   let path = url.pathname;
   let action = url.searchParams.get('a');
 
@@ -190,7 +192,7 @@ class googleDrive {
   async search(query){
     let url = 'https://www.googleapis.com/drive/v3/files';
     this.files = [];
-    if(authConfig.root.length>20){
+    if(!authConfig.isRootOrTeamDrive){
         return this.files;
     }
     let params;
@@ -201,11 +203,15 @@ class googleDrive {
         params = {'corpora':'drive', 'driveId': authConfig.root, 'includeItemsFromAllDrives':true,'supportsAllDrives':true};
         params.q = `name contains '${query}' and trashed = false`;
     }
-    params.fields = "files(id, name, mimeType, size ,createdTime, modifiedTime, iconLink, thumbnailLink)";
+    params.fields = "files(id, name, mimeType, size ,createdTime, modifiedTime, iconLink, thumbnailLink, shortcutDetails)";
     url += '?'+this.enQuery(params);
     let requestOption = await this.requestOption();
     let response = await fetch(url, requestOption);
     let obj = await response.json();
+    if (obj.files && obj.files[0] && obj.files[0].mimeType == 'application/vnd.google-apps.shortcut') {
+      obj.files[0].id = obj.files[0].shortcutDetails.targetId;
+      obj.files[0].mimeType = obj.files[0].shortcutDetails.targetMimeType;
+    }
     for (let i=0; i<obj.files.length; i+=1) {
         this.files.push(obj.files[i]);
     }
